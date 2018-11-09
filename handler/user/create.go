@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lexkong/log"
 	"github.com/lexkong/log/lager"
+	"fmt"
 )
 
 // Create creates a new user account.
@@ -32,11 +33,16 @@ func Create(c *gin.Context) {
 	}
 
 	if err := u.Validate(); err != nil {
-		SendResponse(c, errno.ErrEncrypt, nil)
+		SendResponse(c, errno.ErrValidation, nil)
+		return
 	}
-
+	if err := u.Encrypt(); err != nil {
+		SendResponse(c, errno.ErrEncrypt, nil)
+		return
+	}
 	if err := u.Create(); err != nil {
-		SendResponse(c, errno.ErrDatabase, nil)
+		fmt.Println(err)
+		SendResponse(c, err, nil)
 		return
 	}
 	rsp := CreateResponse{

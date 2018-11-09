@@ -29,6 +29,7 @@ func Update(c *gin.Context) {
 		return
 	}
 	if err := u.Update(); err != nil {
+		print(err.Error())
 		SendResponse(c, errno.ErrDatabase, nil)
 		return
 	}
