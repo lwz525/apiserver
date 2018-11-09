@@ -1,20 +1,20 @@
 package util
 
 import (
-	"github.com/teris-io/shortid"
 	"github.com/gin-gonic/gin"
+	"github.com/teris-io/shortid"
 )
 
-func GenShortId()(string,error)  {
+func GenShortId() (string, error) {
 	return shortid.Generate()
 }
 
-func GetReqID(c *gin.Context) string  {
-	v,ok:=c.Get("X-request-Id")
+func GetReqID(c *gin.Context) string {
+	v, ok := c.Get("X-request-Id")
 	if !ok {
 		return ""
 	}
-	if requestId,ok:=v.(string);ok{
+	if requestId, ok := v.(string); ok {
 		return requestId
 	}
 	return ""

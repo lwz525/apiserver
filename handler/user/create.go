@@ -1,11 +1,13 @@
 package user
 
 import (
+	. "apiserver/handler"
+	"apiserver/model"
 	"apiserver/pkg/errno"
-	"fmt"
-
+	"apiserver/util"
 	"github.com/gin-gonic/gin"
 	"github.com/lexkong/log"
+	"github.com/lexkong/log/lager"
 )
 
 // Create creates a new user account.
@@ -14,17 +16,35 @@ func Create(c *gin.Context) {
 	//	Username string `json:"username"`
 	//	Password string `json:"password"`
 	//}
+	log.Info("User create function called", lager.Data{"X-Request-Id": util.GetReqID(c)})
 
 	var r CreateRequest
 
-	var err error
 	if err := c.Bind(&r); err != nil {
 		//c.JSON(http.StatusOK, gin.H{"error": errno.ErrBind})
 		SendResponse(c, errno.ErrBind, nil)
 		return
 	}
 
-	admin2 := c.Param("username")
+	u := model.UserModel{
+		Username: r.Username,
+		Password: r.Password,
+	}
+
+	if err := u.Validate(); err != nil {
+		SendResponse(c, errno.ErrEncrypt, nil)
+	}
+
+	if err := u.Create(); err != nil {
+		SendResponse(c, errno.ErrDatabase, nil)
+		return
+	}
+	rsp := CreateResponse{
+		Username: r.Username,
+	}
+
+	SendResponse(c, nil, rsp)
+	/*admin2 := c.Param("username")
 	log.Infof("URL username: %s", admin2)
 
 	desc := c.Query("desc")
@@ -36,7 +56,7 @@ func Create(c *gin.Context) {
 	log.Debugf("username is: [%s], password is [%s]", r.Username, r.Password)
 	if r.Username == "" {
 		fmt.Println(r.Username)
-		err = errno.New(errno.ErrUserNotFound, fmt.Errorf("username can not found in db: xx.xx.xx.xx")).Add("This is add message.")
+		err := errno.New(errno.ErrUserNotFound, fmt.Errorf("username can not found in db: xx.xx.xx.xx")).Add("This is add message.")
 		log.Errorf(err, "Get an error")
 	}
 
@@ -54,11 +74,11 @@ func Create(c *gin.Context) {
 	rsp := CreateResponse{
 		Username: r.Username,
 	}
-	SendResponse(c, nil, rsp)
+	SendResponse(c, nil, rsp)*/
 }
 func (r *CreateRequest) checkParam() error {
-	if r.Username == ""{
-		return errno.New(errno.ErrValidation,nil).Add("username is empty")
+	if r.Username == "" {
+		return errno.New(errno.ErrValidation, nil).Add("username is empty")
 	}
 	if r.Password == "" {
 		return errno.New(errno.ErrValidation, nil).Add("password is empty.")
