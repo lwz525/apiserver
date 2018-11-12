@@ -1,9 +1,11 @@
 package handler
 
 import (
-	"apiserver/pkg/errno"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"apiserver/pkg/errno"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Response struct {
@@ -14,6 +16,8 @@ type Response struct {
 
 func SendResponse(c *gin.Context, err error, data interface{}) {
 	code, message := errno.DecodeErr(err)
+
+	// always return http.StatusOK
 	c.JSON(http.StatusOK, Response{
 		Code:    code,
 		Message: message,

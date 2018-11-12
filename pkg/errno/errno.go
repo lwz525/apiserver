@@ -11,6 +11,7 @@ func (err Errno) Error() string {
 	return err.Message
 }
 
+// Err represents an error
 type Err struct {
 	Code    int
 	Message string
@@ -25,6 +26,7 @@ func (err *Err) Add(message string) error {
 	err.Message += " " + message
 	return err
 }
+
 func (err *Err) Addf(format string, args ...interface{}) error {
 	err.Message += " " + fmt.Sprintf(format, args...)
 	return err
@@ -38,6 +40,7 @@ func IsErrUserNotFound(err error) bool {
 	code, _ := DecodeErr(err)
 	return code == ErrUserNotFound.Code
 }
+
 func DecodeErr(err error) (int, string) {
 	if err == nil {
 		return OK.Code, OK.Message
@@ -49,7 +52,7 @@ func DecodeErr(err error) (int, string) {
 	case *Errno:
 		return typed.Code, typed.Message
 	default:
-
 	}
+
 	return InternalServerError.Code, err.Error()
 }
